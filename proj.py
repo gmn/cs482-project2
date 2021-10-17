@@ -6,8 +6,8 @@ import os, sys
 #
 # set these 2 values
 #
-username = ''
-password = ''
+username = 'gnaughton'
+password = 'Vb8aO4ac79uU'
 
 # cs482 db server
 host = 'dbclass'
@@ -80,17 +80,64 @@ def usage():
     print('usage: {} <number> [argument]'.format(sys.argv[0]))
 
 
+def print_header(widths, header):
+    for i, field in enumerate(header):
+        fmt = '{0:<' + str(widths[i]+1) + '}'
+        print(fmt.format(field), end='')
+    print()
+
+
+def print_rows(widths, rows):
+    for row in rows:
+        for i, col in enumerate(row):
+            fmt = '{0:<' + str(widths[i]+1) + '}'
+            print(fmt.format(col), end='')
+        print()
+
+
+def getMaxColWidths(col_widths, data):
+    assert(len(col_widths) >= len(data))
+    for i,d in enumerate(data):
+        if len(str(d)) > col_widths[i]:
+            col_widths[i] = len(d)
+
+
 def problem1(db):
     """
         note: this is supposed to match the street and be case sensitive. I don't think the sql LIKE operator is case-sensitive, so probably need to fix that, or do the match against all the rows by hand. Not sure what they want.
     """
     print(f'\nproblem 1 - showing sites with address containing "{sys.argv[2]}"\n')
+
+    # get list of tuples with column names 
     header = db.query('describe Site;')
-    print(", ".join([h[0] for h in header]))
-    print('-' * 44)
+    header = [x[0] for x in header]
+
+    # init widths to all zeros, one for each column
+    col_widths = [0 for _ in range(len(header))]
+
+    # get the max widths for the header names
+    getMaxColWidths(col_widths, header)
+
+    # do the problem1 query
     res = db.query(f'select * from Site where address like "%{sys.argv[2]}%";')
+
+    # filter res by case-sensitive matching against argv[2]
+    res2 = []
     for row in res:
-        print(", ".join(map(str, row)))
+        if sys.argv[2] in row[2]:
+            res2.append(row)
+    res = res2
+
+    # get max widths for each column of each row
+    for row in res:
+        getMaxColWidths(col_widths, row)
+
+    ##
+    ## Ok, now that we have correct widths, we can format the output nicely
+    ##
+    print_header(col_widths, header)
+    print('-' * (sum(col_widths) + len(col_widths)))
+    print_rows(col_widths, res)
 
 
 def problem2(db):
