@@ -3,14 +3,18 @@
 import mysql.connector
 import os, sys
 
+############################################
 #
-# set these 2 values
+# set these 2 values!!!
 #
+############################################
 username = ''
 password = ''
+############################################
 
 # cs482 db server
 host = 'dbclass'
+
 
 class sqlWrapper:
     database = False
@@ -19,7 +23,6 @@ class sqlWrapper:
     host = False
     username = False
     password = False
-
 
     def __init__(self, h, u, p):
         self.db = mysql.connector.connect(
@@ -36,7 +39,6 @@ class sqlWrapper:
             print('failed to connect')
             sys.exit(1)
         self.cursor = self.db.cursor()
-
 
     def connect_to_cs482_db(self):
         """
@@ -57,11 +59,9 @@ class sqlWrapper:
         print( 'using database: "{}"'.format(self.database))
         self.cursor.execute('use {};'.format(self.database))
 
-
     def query(self, qstring):
         self.cursor.execute(qstring)
         return [x[0] if len(x) == 1 else x for x in self.cursor]
-
 
     def close(self):
         if self.db.is_connected():
@@ -173,7 +173,6 @@ def problem8(db):
     print('problem 8')
 
 
-
 def main():
     if len(sys.argv) < 2:
         usage()
@@ -204,6 +203,7 @@ def main():
 
     # close database connection
     db.close()
+
 
 if __name__ == '__main__':
     #show_tables()
