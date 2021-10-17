@@ -55,7 +55,7 @@ class sqlWrapper:
 
     def query(self, qstring):
         self.cursor.execute(qstring)
-        return [x[0] for x in self.cursor]
+        return [x[0] if len(x) == 1 else x for x in self.cursor]
 
 
     def close(self):
@@ -81,25 +81,41 @@ def usage():
 
 
 def problem1(db):
-    print('problem 1')
+    """
+        note: this is supposed to match the street and be case sensitive. I don't think the sql LIKE operator is case-sensitive, so probably need to fix that, or do the match against all the rows by hand. Not sure what they want.
+    """
+    print(f'\nproblem 1 - showing sites with address containing "{sys.argv[2]}"\n')
+    header = db.query('describe Site;')
+    print(", ".join([h[0] for h in header]))
+    print('-' * 44)
+    res = db.query(f'select * from Site where address like "%{sys.argv[2]}%";')
+    for row in res:
+        print(", ".join(map(str, row)))
+
 
 def problem2(db):
     print('problem 2')
 
+
 def problem3(db):
     print('problem 3')
+
 
 def problem4(db):
     print('problem 4')
 
+
 def problem5(db):
     print('problem 5')
+
 
 def problem6(db):
     print('problem 6')
 
+
 def problem7(db):
     print('problem 7')
+
 
 def problem8(db):
     print('problem 8')
@@ -136,5 +152,5 @@ def main():
     db.close()
 
 if __name__ == '__main__':
-    show_tables()
+    #show_tables()
     main()
