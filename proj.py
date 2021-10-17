@@ -41,13 +41,18 @@ class sqlWrapper:
     def connect_to_cs482_db(self):
         """
             custom for cs482
+
+            Atomatically determines the name of your database
+            and connects to it. So that way, everything is driven
+            off of the username field set at the top of this file. 
         """
         self.database = ''
         # find the database that starts with our name
         self.cursor.execute('show databases')
         for x in self.cursor:
-            if self.username in x[0]:
+            if x[0].startswith(self.username):
                 self.database = x[0]        
+                break
 
         print( 'using database: "{}"'.format(self.database))
         self.cursor.execute('use {};'.format(self.database))
@@ -174,6 +179,7 @@ def main():
         usage()
         sys.exit(1)
 
+    # connect to the database
     db = sqlWrapper(host, username, password)
     db.connect_to_cs482_db()
 
@@ -196,6 +202,7 @@ def main():
     else:
         print('do not understand: "{}"'.format(sys.argv[1]))
 
+    # close database connection
     db.close()
 
 if __name__ == '__main__':
