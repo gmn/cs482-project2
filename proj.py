@@ -6,8 +6,8 @@ import os, sys
 #
 # set these 2 values
 #
-username = 'gnaughton'
-password = 'Vb8aO4ac79uU'
+username = ''
+password = ''
 
 # cs482 db server
 host = 'dbclass'
