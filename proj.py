@@ -51,7 +51,7 @@ class sqlWrapper:
         """
         self.database = ''
         # find the database that starts with our name
-        self.cursor.execute('show databases')
+        self.cursor.execute('show databases;')
         for x in self.cursor:
             if x[0].startswith(self.username):
                 self.database = x[0]        
@@ -159,23 +159,44 @@ def problem3(db):
 
 
 def problem4(db):
-    print('problem 4')
+
+    print('problem 4 - Finds the clients with a given input phone number')
+
+    res = db.query(f'SELECT * FROM Client WHERE phone = "{sys.argv[2]}";')
+
+    print(res)
+
 
 
 def problem5(db):
-    print('problem 5')
+    print('problem 5 - Find the total working hours of every administrator')
+
+    res = db.query('SELECT A.empId, A.name, TotalHours.T FROM Administrator as A NATURAL JOIN (SELECT empId, SUM(hours) as T FROM AdmWorkHours GROUP BY empId) as TotalHours;')
+
+    print(res)
 
 
 def problem6(db):
-    print('problem 6')
+    print('problem 6 - Find the technical support who specalize in a specific model')
 
+    res = db.query(f'SELECT T.name FROM TechnicalSupport as T NATURAL JOIN Specializes as S WHERE S.modelNo = "{sys.argv[2]}"')
+
+    print(res)
 
 def problem7(db):
-    print('problem 7')
+    print('problem 7 - Shows the salesman in decending order based on their commission rate')
+
+    res = db.query('SELECT S.name, ComAvg.AVRG FROM Salesman as S NATURAL JOIN (SELECT empId, AVG(commissionRate) as AVRG FROM Purchases GROUP BY empId) as ComAvg ORDER BY ComAvg.AVRG DESC')
+
+    print(res)
 
 
 def problem8(db):
-    print('problem 8')
+    print('problem 8 - Displays the number of Administrators, Salesman, and Technicians')
+
+    res = db.query('SELECT A.cnt, B.cnt, C.cnt FROM (SELECT count(empId) as cnt from Administrator) as A, (SELECT count(empId) as cnt from Salesman) as B, (SELECT count(empId) as cnt from Salesman) as C')
+
+    print(res)
 
 
 def main():
