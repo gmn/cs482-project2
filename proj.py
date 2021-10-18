@@ -5,7 +5,7 @@ import os, sys
 
 ############################################
 #
-# set these 2 values!!!
+# Set these 2 values and everything else will work.
 #
 ############################################
 username = ''
@@ -38,7 +38,8 @@ class sqlWrapper:
         else:
             print('failed to connect')
             sys.exit(1)
-        self.cursor = self.db.cursor()
+        # https://stackoverflow.com/questions/38350816/python-mysql-connector-internalerror-unread-result-found-when-close-cursor
+        self.cursor = self.db.cursor(buffered=True)
 
     def connect_to_cs482_db(self):
         """
@@ -54,10 +55,12 @@ class sqlWrapper:
         for x in self.cursor:
             if x[0].startswith(self.username):
                 self.database = x[0]        
+                # if cursor not set buffered=True, you must read the entire
+                # cursor or else it throws an error, idiotic
                 break
 
         print( 'using database: "{}"'.format(self.database))
-        self.cursor.execute('use {};'.format(self.database))
+        self.cursor.execute('use {}'.format(self.database))
 
     def query(self, qstring):
         self.cursor.execute(qstring)
@@ -109,7 +112,9 @@ def getMaxColWidths(col_widths, data):
 
 def problem1(db):
     """
-        note: this is supposed to match the street and be case sensitive. I don't think the sql LIKE operator is case-sensitive, so probably need to fix that, or do the match against all the rows by hand. Not sure what they want.
+        PROBLEM 1 - 
+
+        This is supposed to match a substring against the street in a case sensitive manner. I don't think the sql LIKE operator is case-sensitive, so we have to do it ourselves in code.
     """
     print(f'\nproblem 1 - showing sites with address containing "{sys.argv[2]}"\n')
 
