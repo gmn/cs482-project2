@@ -118,8 +118,10 @@ def getMaxColWidths(col_widths, data):
             col_widths[i] = len(d)
 
 def printHeaderAndResults(header, res, col_widths):
-    print_header(col_widths, header)
-    print('-' * (sum(col_widths) + len(col_widths)*2))
+    print()
+    if header:
+        print_header(col_widths, header)
+        print('-' * (sum(col_widths) + len(col_widths)*2))
     print_rows(col_widths, res)
 
 
@@ -158,7 +160,19 @@ def problem1(db):
 
 
 def problem2(db):
-    print('problem 2')
+    """
+        Find the digital displays with a given scheduler system. Show their serial nos, model nos, and the names of technical supports who specialize their models. The scheduler system should be a parameter input through the main program. To get the answer of this question, the command to run is
+
+    """
+    print('problem 2 - find digital displays and name of technician who support a model with a given schedulersystem')
+
+    res = db.query("SELECT D.serialNo, D.modelNo, T.name from DigitalDisplay as D, TechnicalSupport as T, Specializes as S  WHERE ( S.empId = T.empId AND D.modelNo = S.modelNo) AND D.schedulerSystem = '{}';".format(sys.argv[2]))
+    widths = [0, 0, 0]
+    header = ['Serial Number', 'Model Number', 'Name']
+    getMaxColWidths(widths, header)
+    for row in res:
+        getMaxColWidths(widths, row)
+    printHeaderAndResults(header, res, widths)
 
 
 def problem3(db):
