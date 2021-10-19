@@ -90,7 +90,7 @@ def usage():
 
 def print_header(widths, header):
     for i, field in enumerate(header):
-        fmt = '{0:<' + str(widths[i]+1) + '}'
+        fmt = '{0:<' + str(widths[i]+2) + '}'
         print(fmt.format(field), end='')
     print()
 
@@ -98,9 +98,17 @@ def print_header(widths, header):
 def print_rows(widths, rows):
     for row in rows:
         for i, col in enumerate(row):
-            fmt = '{0:<' + str(widths[i]+1) + '}'
+            fmt = '{0:<' + str(widths[i]+2) + '}'
             print(fmt.format(col), end='')
         print()
+
+
+def headerWidths(header):
+    # init widths to all zeros, one for each column
+    col_widths = [0 for _ in range(len(header))]
+    # get the max widths for the header names
+    getMaxColWidths(col_widths, header)
+    return col_widths
 
 
 def getMaxColWidths(col_widths, data):
@@ -108,6 +116,11 @@ def getMaxColWidths(col_widths, data):
     for i,d in enumerate(data):
         if len(str(d)) > col_widths[i]:
             col_widths[i] = len(d)
+
+def printHeaderAndResults(header, res, col_widths):
+    print_header(col_widths, header)
+    print('-' * (sum(col_widths) + len(col_widths)*2))
+    print_rows(col_widths, res)
 
 
 def problem1(db):
@@ -119,14 +132,10 @@ def problem1(db):
     print(f'\nproblem 1 - showing sites with address containing "{sys.argv[2]}"\n')
 
     # get list of tuples with column names 
-    header = db.query('describe Site;')
-    header = [x[0] for x in header]
+    header = [x[0] for x in db.query('describe Site;')]
 
     # init widths to all zeros, one for each column
-    col_widths = [0 for _ in range(len(header))]
-
-    # get the max widths for the header names
-    getMaxColWidths(col_widths, header)
+    col_widths = headerWidths(header)
 
     # do the problem1 query
     res = db.query(f'select * from Site where address like "%{sys.argv[2]}%";')
@@ -145,9 +154,7 @@ def problem1(db):
     ##
     ## Ok, now that we have correct widths, we can format the output nicely
     ##
-    print_header(col_widths, header)
-    print('-' * (sum(col_widths) + len(col_widths)))
-    print_rows(col_widths, res)
+    printHeaderAndResults(header, res, col_widths)
 
 
 def problem2(db):
@@ -159,13 +166,23 @@ def problem3(db):
 
 
 def problem4(db):
-
     print('problem 4 - Finds the clients with a given input phone number')
 
+    # header info
+    header = [x[0] for x in db.query('describe Client')]
+
+    # column widths for each table field
+    widths = headerWidths(header)
+
+    # query
     res = db.query(f'SELECT * FROM Client WHERE phone = "{sys.argv[2]}";')
 
-    print(res)
+    # update the widths for printing
+    for row in res:
+        getMaxColWidths(widths, row)
 
+    # print answer
+    printHeaderAndResults(header, res, widths)
 
 
 def problem5(db):
