@@ -10,6 +10,9 @@ import os, sys
 ############################################
 username = ''
 password = ''
+username = 'gnaughton'
+password = 'Vb8aO4ac79uU'
+
 ############################################
 
 # cs482 db server
@@ -245,11 +248,17 @@ def problem5(db):
 
 
 def problem6(db):
+    """
+    Find the technical supports that specialize a specified model. Display the names of those technical supports. The specified model no should be a parameter input through the main program. To get the answer of this question, the command to run is
+    """
     print('problem 6 - Find the technical support who specalize in a specific model')
 
     res = db.query(f'SELECT T.name FROM TechnicalSupport as T NATURAL JOIN Specializes as S WHERE S.modelNo = "{sys.argv[2]}"')
+    header = ['Name of technician']
+    print('\n{}\n----------------'.format(header[0]))
+    for r in res:
+        print(r)
 
-    print(res)
 
 def problem7(db):
     print('problem 7 - Shows the salesman in decending order based on their commission rate')
