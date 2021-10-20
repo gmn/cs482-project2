@@ -10,9 +10,6 @@ import os, sys
 ############################################
 username = ''
 password = ''
-username = 'gnaughton'
-password = 'Vb8aO4ac79uU'
-
 ############################################
 
 # cs482 db server
@@ -264,8 +261,12 @@ def problem7(db):
     print('problem 7 - Shows the salesman in decending order based on their commission rate')
 
     res = db.query('SELECT S.name, ComAvg.AVRG FROM Salesman as S NATURAL JOIN (SELECT empId, AVG(commissionRate) as AVRG FROM Purchases GROUP BY empId) as ComAvg ORDER BY ComAvg.AVRG DESC')
-
-    print(res)
+    header = ['Salesman name', 'Average commission rate']
+    widths = headerWidths(header)
+    for row in res:
+        getMaxColWidths(widths, row)
+    # print answer
+    printHeaderAndResults(header, res, widths)
 
 
 def problem8(db):
