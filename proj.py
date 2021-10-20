@@ -229,58 +229,34 @@ def problem4(db):
 
 
 def problem5(db):
-    """
-    Find the total working hours of each administrator. Display the administrators’ employee ids, names, and total working hours in ascending order of the total working hours
-    """
     print('problem 5 - Find the total working hours of every administrator')
 
-    res = db.query('SELECT A.empId, A.name, TotalHours.T FROM Administrator as A NATURAL JOIN (SELECT empId, SUM(hours) as T FROM AdmWorkHours GROUP BY empId) as TotalHours ORDER by TotalHours.T ASC;')
+    res = db.query('SELECT A.empId, A.name, TotalHours.T FROM Administrator as A NATURAL JOIN (SELECT empId, SUM(hours) as T FROM AdmWorkHours GROUP BY empId) as TotalHours;')
 
-    header = ['employee id', 'name', 'total working hours']
-    widths = headerWidths(header)
-    for row in res:
-        getMaxColWidths(widths, row)
-    # print answer
-    printHeaderAndResults(header, res, widths)
+    print(res)
 
 
 def problem6(db):
-    """
-    Find the technical supports that specialize a specified model. Display the names of those technical supports. The specified model no should be a parameter input through the main program. To get the answer of this question, the command to run is
-    """
     print('problem 6 - Find the technical support who specalize in a specific model')
 
     res = db.query(f'SELECT T.name FROM TechnicalSupport as T NATURAL JOIN Specializes as S WHERE S.modelNo = "{sys.argv[2]}"')
-    header = ['Name of technician']
-    print('\n{}\n----------------'.format(header[0]))
-    for r in res:
-        print(r)
 
+    print(res)
 
 def problem7(db):
     print('problem 7 - Shows the salesman in decending order based on their commission rate')
 
     res = db.query('SELECT S.name, ComAvg.AVRG FROM Salesman as S NATURAL JOIN (SELECT empId, AVG(commissionRate) as AVRG FROM Purchases GROUP BY empId) as ComAvg ORDER BY ComAvg.AVRG DESC')
-    header = ['Salesman name', 'Average commission rate']
-    widths = headerWidths(header)
-    for row in res:
-        getMaxColWidths(widths, row)
-    # print answer
-    printHeaderAndResults(header, res, widths)
+
+    print(res)
 
 
 def problem8(db):
     print('problem 8 - Displays the number of Administrators, Salesman, and Technicians')
 
-    res = db.query('SELECT A.cnt, B.cnt, C.cnt FROM (SELECT count(empId) as cnt from Administrator) as A, (SELECT count(empId) as cnt from Salesman) as B, (SELECT count(empId) as cnt from TechnicalSupport) as C')
+    res = db.query('SELECT A.cnt, B.cnt, C.cnt FROM (SELECT count(empId) as cnt from Administrator) as A, (SELECT count(empId) as cnt from Salesman) as B, (SELECT count(empId) as cnt from Salesman) as C')
 
-    header = ['Role', 'cnt']
-    widths = headerWidths(header)
-    collated = [('Administrator', res[0][0]), ('Salesman', res[0][1]), ('Technician', res[0][2])]
-    for row in collated:
-        getMaxColWidths(widths, row)
-    # print answer
-    printHeaderAndResults(header, collated, widths)
+    print(res)
 
 
 def main():
