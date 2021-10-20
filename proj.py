@@ -272,9 +272,15 @@ def problem7(db):
 def problem8(db):
     print('problem 8 - Displays the number of Administrators, Salesman, and Technicians')
 
-    res = db.query('SELECT A.cnt, B.cnt, C.cnt FROM (SELECT count(empId) as cnt from Administrator) as A, (SELECT count(empId) as cnt from Salesman) as B, (SELECT count(empId) as cnt from Salesman) as C')
+    res = db.query('SELECT A.cnt, B.cnt, C.cnt FROM (SELECT count(empId) as cnt from Administrator) as A, (SELECT count(empId) as cnt from Salesman) as B, (SELECT count(empId) as cnt from TechnicalSupport) as C')
 
-    print(res)
+    header = ['Role', 'cnt']
+    widths = headerWidths(header)
+    collated = [('Administrator', res[0][0]), ('Salesman', res[0][1]), ('Technician', res[0][2])]
+    for row in collated:
+        getMaxColWidths(widths, row)
+    # print answer
+    printHeaderAndResults(header, collated, widths)
 
 
 def main():
