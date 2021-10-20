@@ -229,11 +229,19 @@ def problem4(db):
 
 
 def problem5(db):
+    """
+    Find the total working hours of each administrator. Display the administrators’ employee ids, names, and total working hours in ascending order of the total working hours
+    """
     print('problem 5 - Find the total working hours of every administrator')
 
-    res = db.query('SELECT A.empId, A.name, TotalHours.T FROM Administrator as A NATURAL JOIN (SELECT empId, SUM(hours) as T FROM AdmWorkHours GROUP BY empId) as TotalHours;')
+    res = db.query('SELECT A.empId, A.name, TotalHours.T FROM Administrator as A NATURAL JOIN (SELECT empId, SUM(hours) as T FROM AdmWorkHours GROUP BY empId) as TotalHours ORDER by TotalHours.T ASC;')
 
-    print(res)
+    header = ['employee id', 'name', 'total working hours']
+    widths = headerWidths(header)
+    for row in res:
+        getMaxColWidths(widths, row)
+    # print answer
+    printHeaderAndResults(header, res, widths)
 
 
 def problem6(db):
