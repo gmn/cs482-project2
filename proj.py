@@ -122,7 +122,8 @@ def printHeaderAndResults(header, res, col_widths):
     if header:
         print_header(col_widths, header)
         print('-' * (sum(col_widths) + len(col_widths)*2))
-    print_rows(col_widths, res)
+    if res:
+        print_rows(col_widths, res)
 
 
 def problem1(db):
@@ -176,7 +177,35 @@ def problem2(db):
 
 
 def problem3(db):
+    """
+        List the distinct names of all salesmen and the number of salesmen with that name.
+    """
     print('problem 3')
+
+    names = db.query("select distinct name from Salesman order by name ASC;")
+    outs = []
+    for name in names:
+        cnts = db.query("select count(*) as cnt from Salesman where name = '{}';".format(name))
+        outs.append((name, cnts[0]))
+
+    header = ['Name', 'cnt']
+    widths = headerWidths(header)
+    for row in outs:
+        getMaxColWidths(widths, row)
+
+    # print just the header
+    printHeaderAndResults(header, None, widths)
+    
+    for row in outs:
+        fmt = '{0:<' + str(widths[0]+2) + '}'
+        print(fmt.format(row[0]), end='')
+        fmt = '{0:<' + str(widths[1]+2) + '}'
+        print(fmt.format(row[1]), end='')
+        if int(row[1]) > 1:
+            res = db.query("select * from Salesman where name = '{}';".format(row[0]))
+            print(", ".join([i for i in map(str, res)]))
+        else:
+            print()
 
 
 def problem4(db):
