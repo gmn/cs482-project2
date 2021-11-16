@@ -64,20 +64,16 @@ def ynqQuestion( text, default_action='n' ):
 
 
 def SubMenu( options, header='', prompt='select>', random_noprompt=False, return_obj=False, custom=False, default=False, exit=True, quit=True, padding=False, return_indexes=False ):
-    """ takes a list,
-        X prints a header
-        X prints an arbitary length list of options
-        X handles console window height run-overs
-        X adds on: e) exit menu, q) quit to main, c) custom input
-        X print a 'prompt> '
-        X gets input, checks for int or option, loops until exit-condition is met, returns a string
-        - prints summary of currently selected items
-        - enums, so the caller knows if it is supposed to return
-        X handles different behaviors, so that all the character class
-            eventualities are handled
-        - takes 'random=1', so that prompt is skipped and random number
-            is selected
-        X can be reused in CREATOR, EDITOR, AUTO-GENERATOR
+    """
+        SubMenu
+
+        - takes a list of menu options
+        - prints a header
+        - prints an arbitary length list of options
+        - handles console window height run-overs
+        - adds: e) exit menu, q) quit to main, c) custom input
+        - print a 'prompt> '
+        - gets input, checks for int or option, loops until exit-condition is met, returns a string
     """
 
     prompt = prompt.rstrip()
@@ -238,20 +234,19 @@ def nestedMenuDemo():
     inventory = ['monitor1', 'monitor2']
     while True:
         actions = [ 'Attributes', 'Inventory' ]
-        act = SubMenu( actions, '\nEdit which category?' )
-        if not act:
+        opt = SubMenu( actions, '\nEdit which category?' )
+        if not opt:
             break
 
-        if act == 'Attributes':
+        if opt == 'Attributes':
             while True:
-                print('showing Attributes')
                 actions = list(attributes.keys())
-                atr = SubMenu( actions, '\nedit which attribute?' )
+                atr = SubMenu( actions, '\nEdit which attribute?' )
                 if not atr:
                     break
                 edit_string(atr, attributes)
 
-        elif act == 'Inventory':
+        elif opt == 'Inventory':
             print('Showing Inventory: ', end='')
             print(json.dumps(inventory, indent='  '))
             add = ynQuestion('Add Item?')
