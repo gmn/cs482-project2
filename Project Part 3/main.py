@@ -1,4 +1,5 @@
 
+import json
 from sql import sqlWrapper
 from dialogues import Question, ynQuestion, SubMenu
 import sys
@@ -106,10 +107,13 @@ def login_dialog():
     database should show whether it has connected to the database correctly.
     """
     while True:
-        opt = SubMenu(['login'], 'Please login to begin, or quit', exit=False)
+        opt = SubMenu(['login'], """
+*******************************************************\n
+This is an example database program for cs482 Project 3\n
+*******************************************************\n
+Please login to begin, or quit.""", exit=False)
         if opt is None:
-            db = False
-            return db
+            return False
 
         if opt == 'login':
             # host, database, username, password
@@ -169,16 +173,25 @@ if __name__ == '__main__':
     prompt users to input database host,
     database name, username and password.
     """
-    db = login_dialog()
-    if db:
+    try:
+        with open('./credentials', 'r') as f:
+            deets = json.load(f)
+        print(f'using found credentials: {deets}')
+        db = sqlWrapper(*deets)
         if db.is_connected():
-            print('** Database has connected correctly')
-            time.sleep(.60)
+            print('>>>>>>>>>>>>using fake login<<<<<<<<<<<<')
+            time.sleep(1.0)
+    except:
+        db = login_dialog()
+        if db:
+            if db.is_connected():
+                print('** Database has connected correctly')
+                time.sleep(.60)
+            else:
+                print('Warning: Database failed to connect', file=sys.stderr)
+                sys.exit(123)
         else:
-            print('Warning: Database failed to connect', file=sys.stderr)
-            sys.exit(123)
-    else:
-        sys.exit(0)
+            sys.exit(0)
 
     """
     It should list
