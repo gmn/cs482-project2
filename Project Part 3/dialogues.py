@@ -34,6 +34,17 @@ def IntQuestion( text ):
         return False
 
 
+def Question( text ):
+    if text[-1] != ' ':
+        text = '{} '.format( text )
+    val = input( text )
+    try:
+        s = val.lstrip().rstrip()
+        return s
+    except:
+        return False
+
+
 def ynQuestion( text, default_action='n' ):
     """
         Returns True for 'Y' or False for 'N'
