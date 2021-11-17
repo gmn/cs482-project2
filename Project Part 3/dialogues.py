@@ -35,6 +35,10 @@ def IntQuestion( text ):
 
 
 def ynQuestion( text, default_action='n' ):
+    """
+        Returns True for 'Y' or False for 'N'
+    """
+
     suffixen = {'y':'[Y/n]','n':'[y/N]'}
     val = input( '{} {}: '.format(text,suffixen[default_action]) )
     if default_action.lower() == 'y':
@@ -44,6 +48,13 @@ def ynQuestion( text, default_action='n' ):
 
 
 def ynqQuestion( text, default_action='n' ):
+    """
+        Returns True for 'Y', False for 'N', None for 'Q'
+
+        (the extra value: q, allows us to field y/n questions,
+         but also quit from inner menus)
+    """
+
     suffix = '[';
     for letter in ('y','n','q'):
         if letter.upper() == default_action.upper():
@@ -113,7 +124,7 @@ def SubMenu( options, header='', prompt='select>', random_noprompt=False, return
                 if exit:
                     print( ' e) exit to previous menu' )
                 if quit:
-                    print( ' q) quit to the previous menu' )
+                    print( ' q) quit' )
                 if custom:
                     print( ' c) {}'.format(custom) )
 
@@ -242,9 +253,13 @@ def nestedMenuDemo():
             while True:
                 actions = list(attributes.keys())
                 atr = SubMenu( actions, '\nEdit which attribute?' )
+                if atr is None:
+                    return
                 if not atr:
                     break
-                edit_string(atr, attributes)
+                eans = edit_string(atr, attributes)
+                if eans is None:
+                    return
 
         elif opt == 'Inventory':
             print('Showing Inventory: ', end='')
