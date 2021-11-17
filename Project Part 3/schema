@@ -1,0 +1,39 @@
+
+1. Video (videoCode: integer, videoLength: integer)
+2. Model (modelNo: char(10), width: numeric (6,2), height: numeric (6,2), weight: numeric (6,2),
+depth: numeric (6,2), screenSize: numeric (6,2))
+3. Site (siteCode: integer, type: varchar (16), address: varchar(100), phone: varchar(16))
+4. DigitalDisplay (serialNo: char(10), schedulerSystem: char(10), modelNo: char(10))
+Foreign key: modelNo references Model (modelNo)
+5. Client (clientId: integer, name: varchar (40), phone: varchar (16), address: varchar (100))
+6. TechnicalSupport (empId: integer, name: varchar (40), gender: char (1))
+7. Administrator (empId: integer, name: varchar (40), gender: char (1))
+8. Salesman (empId: integer, name: varchar (40), gender: char (1))
+9. AirtimePackage (packageId: integer, class: varchar (16), startDate: date, lastDate: date,
+frequency: integer, videoCode: integer)
+10. AdmWorkHours (empId: integer, day: date, hours: numeric (4,2))
+Foreign key: empId references Administrator (empId)
+11. Broadcasts (videoCode: integer, siteCode: integer)
+Foreign key: videoCode references Video (videoCode)
+Foreign key: siteCode references Site (siteCode)
+12. Administers (empId: integer, siteCode: integer)
+Foreign key: empId references Administrator (empId)
+Foreign key: siteCode references Site (siteCode)
+13. Specializes (empId: integer, modelNo: char(10))
+Foreign key: empId references TechnicalSupport (empId)
+Foreign key: modelNo references Model (modelNo)
+14. Purchases (clientId: integer, empId: integer, packageId: integer, commissionRate: numeric (4,2))
+Foreign key: clientId references Client (clientId)
+Foreign key: empId references Salesman (empId)
+Foreign key: packageId references AirtimePackage (packageId)
+15. Locates (serialNo: char (10), siteCode: integer)
+Foreign key: serialNo references DigitalDisplay (serialNo)
+1Foreign key: siteCode references Site (siteCode)
+Given the above database schema and the following constraints:
+
+
+
+A display site can only be a bar or a restaurant (i.e., the type for Site can only be ‘bar’ or
+‘restaurant’).
+The scheduler system of a digital display can only be ‘Random’, ‘Smart’ or ‘Virtue’.
+The class of an airtime package can only be ‘economy’, ‘whole day’ or ‘golden hours’.
