@@ -19,7 +19,7 @@ class sqlWrapper:
         self.cursor.execute('use {}'.format(self.database))
 
 
-    def is_connected():
+    def is_connected(self):
         return self.db.is_connected()
 
 
