@@ -4,12 +4,60 @@ from dialogues import Question, ynQuestion, SubMenu
 import sys
 import time
 
+def getMaxColWidths(col_widths, data):
+    assert(len(col_widths) >= len(data))
+    for i,d in enumerate(data):
+        if len(str(d)) > col_widths[i]:
+            col_widths[i] = len(str(d))
+
+
+def printHeaderAndResults(header, res, col_widths):
+    print()
+    if header:
+        print_header(col_widths, header)
+        print('-' * (sum(col_widths) + len(col_widths)*2))
+    if res:
+        print_rows(col_widths, res)
+
+def print_header(widths, header):
+    for i, field in enumerate(header):
+        fmt = '{0:<' + str(widths[i]+2) + '}'
+        print(fmt.format(field), end='')
+    print()
+
+def print_rows(widths, rows):
+    for row in rows:
+        for i, col in enumerate(row):
+            fmt = '{0:<' + str(widths[i]+2) + '}'
+            print(fmt.format(col), end='')
+        print()
+
+def fancy_print(header, res, widths):
+    getMaxColWidths(widths, header)
+    for row in res:
+        getMaxColWidths(widths, row)
+    printHeaderAndResults(header, res, widths)
+
 
 def DisplayDigitalDisplays(db):
     """
         (1) Display all the digital displays. For each display, if a user clicks the model no, the detailed model information should be displayed.
     """
-    print('in DisplayDigitalDisplays')
+    res = db.query("SELECT * FROM DigitalDisplay;")
+    header = ['Serial Number', 'Scheduler System', 'Model No.']
+    widths = [0, 0, 0]
+    fancy_print(header, res, widths)
+
+    print()
+    opt = SubMenu(['Lookup Model'], 'If you would like to look up model information. Please use the options below.', exit=False)
+    if opt is None:
+        return
+    if opt == 'Lookup Model':
+        modelNo = Question('Model Number> ')
+        res = db.query(f'SELECT * FROM Model WHERE modelNo="{modelNo}";')
+        header = ['Model No.', 'Width', 'Height', 'Weight', 'Depth', 'Screen Size']
+        widths = [0, 0, 0, 0, 0, 0]
+        fancy_print(header, res, widths)
     time.sleep(0.5)
 
 
@@ -17,7 +65,12 @@ def DisplaysForScheduler(db):
     """
         (2) Search by inputting a scheduler system. Show the digital displays satisfying the search condition.
     """
-    print('in DisplaysForScheduler')
+    print()
+    schedulerSystem = Question('Scheduler System> ')
+    res = db.query(f'SELECT * FROM DigitalDisplay WHERE schedulerSystem="{schedulerSystem}";')
+    header = ['Serial Number', 'Scheduler System', 'Model No.']
+    widths = [0, 0, 0]
+    fancy_print(header, res, widths)
     time.sleep(0.5)
 
 
