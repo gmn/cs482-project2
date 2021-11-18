@@ -1,7 +1,7 @@
 
 import json
 from sql import sqlWrapper
-from dialogues import Question, ynQuestion, SubMenu
+from dialogues import Question, ynQuestion, ynqQuestion, SubMenu
 import sys
 import time
 
@@ -80,7 +80,45 @@ def InsertDisplay(db):
         (3) Insert a new digital display. When the model of this digital display does not exist, you should design a page to ask users to input the model information first. Display all digital displays after insertion.
 
     """
-    print('in InsertDisplay')
+    # - insert a display, y/n
+    ans = ynQuestion('Insert a new display? ')
+    if not ans:
+        return
+    # - enter model number,
+    print("Inserting Display:")
+    modelNo = Question('modelNo> ')
+    res = db.query(f'SELECT * from Model where modelNo = "{modelNo}";')
+    #   - if model doesn't exist, add a new model
+    model = {'modelNo':'',
+             'width':0.0,
+             'height':0,
+             'weight':0,
+             'depth':0,
+             'screenSize':0}
+    if not res:
+        print("Model doesn't exist. Please add new model:")
+        for field in model.keys():
+            ans = Question(f'{field}> ')
+            model[field] = str(ans)
+        db.query('INSERT INTO Model VALUES ("{}",{},{},{},{},{});'.format( *model.values() ))
+        modelNo = model["modelNo"]
+        print(f'Model {modelNo} created')
+
+    disp = {'serialNo':0, 'schedulerSystem':0, 'modelNo': modelNo}
+    print(f'modelNo> {modelNo}')
+    time.sleep(0.5)
+    disp['serialNo'] = Question('serialNo> ')
+    disp['schedulerSystem'] = Question('schedulerSystem (Random, Smart, or Virtue)> ')
+    db.query('INSERT INTO DigitalDisplay VALUES ("{}","{}","{}");'.format(
+        *disp.values()))
+    print(f'Digital Display {disp["serialNo"]} created.')
+
+    res = db.query('SELECT * from DigitalDisplay;')
+    headers = ['Serial Number', 'Scheduler System', 'Model Number']
+    fancy_print(headers, res )
+
+    # - finish entering new display
+    # - show all displays when youre done
     time.sleep(0.5)
 
 
