@@ -11,7 +11,6 @@ def getMaxColWidths(col_widths, data):
         if len(str(d)) > col_widths[i]:
             col_widths[i] = len(str(d))
 
-
 def printHeaderAndResults(header, res, col_widths):
     print()
     if header:
@@ -33,7 +32,8 @@ def print_rows(widths, rows):
             print(fmt.format(col), end='')
         print()
 
-def fancy_print(header, res, widths):
+def fancy_print(header, res):
+    widths = [0 for _ in header]
     getMaxColWidths(widths, header)
     for row in res:
         getMaxColWidths(widths, row)
@@ -46,19 +46,20 @@ def DisplayDigitalDisplays(db):
     """
     res = db.query("SELECT * FROM DigitalDisplay;")
     header = ['Serial Number', 'Scheduler System', 'Model No.']
-    widths = [0, 0, 0]
-    fancy_print(header, res, widths)
+    fancy_print(header, res)
 
     print()
-    opt = SubMenu(['Lookup Model'], 'If you would like to look up model information. Please use the options below.', exit=False)
+    opt = SubMenu(['Lookup Model'], 'If you would like to look up model information. Please use the options below.', quit=False)
     if opt is None:
         return
     if opt == 'Lookup Model':
-        modelNo = Question('Model Number> ')
-        res = db.query(f'SELECT * FROM Model WHERE modelNo="{modelNo}";')
-        header = ['Model No.', 'Width', 'Height', 'Weight', 'Depth', 'Screen Size']
-        widths = [0, 0, 0, 0, 0, 0]
-        fancy_print(header, res, widths)
+        while True:
+            modelNo = SubMenu([i[2] for i in res], 'Select Model Number to Look up', quit=False)
+            if not modelNo:
+                break
+            res2 = db.query(f'SELECT * FROM Model WHERE modelNo="{modelNo}";')
+            header = ['Model No.', 'Width', 'Height', 'Weight', 'Depth', 'Screen Size']
+            fancy_print(header, res2)
     time.sleep(0.5)
 
 
@@ -70,8 +71,7 @@ def DisplaysForScheduler(db):
     schedulerSystem = Question('Scheduler System> ')
     res = db.query(f'SELECT * FROM DigitalDisplay WHERE schedulerSystem="{schedulerSystem}";')
     header = ['Serial Number', 'Scheduler System', 'Model No.']
-    widths = [0, 0, 0]
-    fancy_print(header, res, widths)
+    fancy_print(header, res)
     time.sleep(0.5)
 
 
