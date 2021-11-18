@@ -40,6 +40,20 @@ def fancy_print(header, res):
     printHeaderAndResults(header, res, widths)
 
 
+def ShowDigitalDisplays(db):
+    res = db.query('SELECT * from DigitalDisplay;')
+    headers = ['Serial Number', 'Scheduler System', 'Model Number']
+    print("Digital Displays", end='')
+    fancy_print(headers, res)
+
+
+def ShowModels(db):
+    res = db.query('SELECT * from Model;')
+    headers = ['modelNo', 'width', 'height', 'weight', 'depth', 'screensize']
+    print('Models', end='')
+    fancy_print(headers, res)
+
+
 def DisplayDigitalDisplays(db):
     """
         (1) Display all the digital displays. For each display, if a user clicks the model no, the detailed model information should be displayed.
@@ -85,25 +99,32 @@ def InsertDisplay(db):
     if not ans:
         return
     # - enter model number,
-    print("Inserting Display:")
+    print("Create new Digital Display:")
     modelNo = Question('modelNo> ')
     res = db.query(f'SELECT * from Model where modelNo = "{modelNo}";')
     #   - if model doesn't exist, add a new model
-    model = {'modelNo':'',
+    model = {'modelNo':modelNo,
              'width':0.0,
              'height':0,
              'weight':0,
              'depth':0,
              'screenSize':0}
     if not res:
-        print("Model doesn't exist. Please add new model:")
+        print("Model doesn't exist. Please create a new model:")
         for field in model.keys():
-            ans = Question(f'{field}> ')
-            model[field] = str(ans)
+            if field == 'modelNo':
+                print(f'modelNo> {modelNo}')
+                time.sleep(0.6)
+            else:
+                ans = Question(f'{field}> ')
+                model[field] = str(ans)
         db.query('INSERT INTO Model VALUES ("{}",{},{},{},{},{});'.format( *model.values() ))
-        modelNo = model["modelNo"]
         print(f'Model {modelNo} created')
+        time.sleep(0.3)
+        print('Continue creating new display')
+        time.sleep(0.3)
 
+    # - finish entering new display
     disp = {'serialNo':0, 'schedulerSystem':0, 'modelNo': modelNo}
     print(f'modelNo> {modelNo}')
     time.sleep(0.5)
@@ -113,22 +134,53 @@ def InsertDisplay(db):
         *disp.values()))
     print(f'Digital Display {disp["serialNo"]} created.')
 
-    res = db.query('SELECT * from DigitalDisplay;')
-    headers = ['Serial Number', 'Scheduler System', 'Model Number']
-    fancy_print(headers, res )
-
-    # - finish entering new display
     # - show all displays when youre done
+    ShowDigitalDisplays(db)
     time.sleep(0.5)
 
 
 def DeleteDisplay(db):
     """
         (4) When displaying all digital displays’ information, users can choose one digital display and delete it from the database. For the digital display that needs to be deleted, if none of other digital displays has the same model no, after the digital display is deleted, its corresponding model should also be deleted. Display all digital displays and all models after deletion.
-
     """
-    print('in DeleteDisplay')
-    time.sleep(0.5)
+
+    while True:
+        res = db.query('SELECT * from DigitalDisplay;')
+        if not res:
+            print('no displays found')
+            return
+        # join these together
+        displays = [" ".join(e) for e in res]
+        which = SubMenu(displays, "Select a display to delete", return_indexes=True, quit=False)
+        if type(which) != type(int()):
+            return
+
+        print('deleting display {}, serial number: "{}"'.format(which, res[which][0]))
+        serialNo = res[which][0]
+        modelNo = res[which][2]
+        db.query(f'DELETE FROM DigitalDisplay where serialNo = "{serialNo}";')
+        time.sleep(1)
+
+        # check if any are left with same model
+        mres = db.query(f'SELECT * FROM DigitalDisplay where modelNo = "{modelNo}";')
+        if not mres:
+            # remove the model if none use it
+            print(f'Removing modelNo {modelNo} from list of Models')
+            db.query(f'DELETE FROM Model where modelNo = "{modelNo}";')
+
+        # all displays
+        print()
+        ShowDigitalDisplays(db)
+        print()
+        time.sleep(1)
+
+        # all models
+        ShowModels(db)
+        time.sleep(0.5)
+
+        again = ynQuestion("\nDelete another? ")
+        if not again:
+            break
 
 
 def UpdateDisplay(disp):
@@ -175,6 +227,7 @@ def main_menu(db):
     - 6. Logout
     """
     menuopts = [ "Display all the digital displays.",
+                 "Show all models.",
                  "Search digital displays given a scheduler system",
                  "Insert a new digital display",
                  "Delete a digital display",
@@ -189,14 +242,16 @@ def main_menu(db):
         elif opt == 0:
             DisplayDigitalDisplays(db)
         elif opt == 1:
-            DisplaysForScheduler(db)
+            ShowModels(db)
         elif opt == 2:
-            InsertDisplay(db)
+            DisplaysForScheduler(db)
         elif opt == 3:
-            DeleteDisplay(db)
+            InsertDisplay(db)
         elif opt == 4:
-            UpdateDisplay(db)
+            DeleteDisplay(db)
         elif opt == 5:
+            UpdateDisplay(db)
+        elif opt == 6:
             print('logging out of mysql')
             time.sleep(0.28)
             if db.close():

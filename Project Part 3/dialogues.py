@@ -5,6 +5,16 @@ import json
 
 sleep_time = 0.45
 
+def fmt_item( item ):
+    name = [k for k in item.keys()][0]
+
+    s = '"{}", '.format( name )
+
+    for k, v in item[name].items():
+        s = s + '{} {}, '.format( k, v )
+
+    return s.rstrip()[:-1]
+
 
 def terminal_size():
     def unix_termsize():
