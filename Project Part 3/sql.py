@@ -1,3 +1,6 @@
+#Class for wrapping the SQL collections in a more standard form so that helper methods
+#Can be used in the main method
+
 import mysql.connector
 import sys
 
@@ -22,17 +25,18 @@ class sqlWrapper:
     def is_connected(self):
         return self.db.is_connected()
 
-
+    #Helper method for creating a query using current databse
     def query(self, qstring):
         self.cursor.execute(qstring)
         self.db.commit()
         return [x[0] if len(x) == 1 else x for x in self.cursor]
     
+    #Helper method for updating a database object
     def update(self, qstring):
         self.cursor.execute(qstring)
         self.db.commit()
 
-
+    #Closes the database connection
     def close(self):
         if self.db.is_connected():
             self.cursor.close()

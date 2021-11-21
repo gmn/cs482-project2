@@ -4,6 +4,8 @@ from sql import sqlWrapper
 from dialogues import Question, ynQuestion, ynqQuestion, SubMenu
 import sys
 import time
+import signal
+import sys
 
 def getMaxColWidths(col_widths, data):
     assert(len(col_widths) >= len(data))
@@ -32,6 +34,7 @@ def print_rows(widths, rows):
             print(fmt.format(col), end='')
         print()
 
+#This method prints a query in a fancy way, meaning formatted columns
 def fancy_print(header, res):
     widths = [0 for _ in header]
     getMaxColWidths(widths, header)
@@ -59,15 +62,17 @@ def DisplayDigitalDisplays(db):
         (1) Display all the digital displays. For each display, if a user clicks the model no, the detailed model information should be displayed.
         (5) When displaying all digital displays’ information, users can choose one digital display and update it. Show the information of all digital displays after updating.
     """
+    #Displays all the displays to the user
     res = db.query("SELECT * FROM DigitalDisplay;")
     header = ['Serial Number', 'Scheduler System', 'Model No.']
     fancy_print(header, res)
 
     print()
+    #Menu for looking up model, or updating display.
     opt = SubMenu(['Lookup Model', 'Update Display'], 'If you would like to look up model information, or update display information. Please use the options below.', quit=False)
     if opt is None:
         return
-    if opt == 'Lookup Model':
+    if opt == 'Lookup Model': #Case for looking up model information
         while True:
             modelNo = SubMenu([i[2] for i in res], 'Select Model Number to Look up', quit=False)
             if not modelNo:
@@ -75,9 +80,10 @@ def DisplayDigitalDisplays(db):
             res2 = db.query(f'SELECT * FROM Model WHERE modelNo="{modelNo}";')
             header = ['Model No.', 'Width', 'Height', 'Weight', 'Depth', 'Screen Size']
             fancy_print(header, res2)
-    if opt == 'Update Display':
+    if opt == 'Update Display': #Case for updating a display
         while True:
             updateDisp = SubMenu([i[0] for i in res], 'Select Display to Update', quit=False)
+            #Finds the selected model from the inital result
             for item in res:
                 if item[0] == updateDisp:
                     newSerialNo = item[0]
@@ -90,10 +96,15 @@ def DisplayDigitalDisplays(db):
             scheduler = Question('Enter New Scheduler System (Leave Black for No Update)> ')
             if scheduler != '':
                 newScheduler = scheduler
+            #Update call to the databse
             db.update(f'UPDATE DigitalDisplay SET serialNo="{newSerialNo}", schedulerSystem="{newScheduler}" WHERE serialNo="{updateDisp}"')
+            #Prints the displays again after update
             res2 = db.query("SELECT * FROM DigitalDisplay;")
             header = ['Serial Number', 'Scheduler System', 'Model No.']
             fancy_print(header, res2)
+            again = ynQuestion("\nEdit another? ")
+            if not again:
+                break
         
     time.sleep(0.5)
 
@@ -176,7 +187,7 @@ def DeleteDisplay(db):
         if type(which) != type(int()):
             return
 
-        print('deleting display {}, serial number: "{}"'.format(which, res[which][0]))
+        print('Deleting display {}, serial number: "{}"'.format(which, res[which][0]))
         serialNo = res[which][0]
         modelNo = res[which][2]
         db.query(f'DELETE FROM DigitalDisplay where serialNo = "{serialNo}";')
@@ -202,14 +213,6 @@ def DeleteDisplay(db):
         again = ynQuestion("\nDelete another? ")
         if not again:
             break
-
-
-def UpdateDisplay(disp):
-    """
-        
-    """
-    
-    time.sleep(0.5)
 
 
 def login_dialog():
@@ -244,7 +247,6 @@ def main_menu(db):
     - 2. Search digital displays given a scheduler system
     - 3. Insert a new digital display
     - 4. Delete a digital display
-    - 5. Update a digital display
     - 6. Logout
     """
     menuopts = [ "Display all the digital displays.",
@@ -252,9 +254,9 @@ def main_menu(db):
                  "Search digital displays given a scheduler system",
                  "Insert a new digital display",
                  "Delete a digital display",
-                 "Update a digital display",
                  "Logout" ]
     while True:
+        #Reads in the user selection and calls the appropriate method to handle their request.
         opt = SubMenu(menuopts, "\nPlease select an option", exit=False,
                       quit=False, return_indexes=True)
         if opt is None:
@@ -271,14 +273,12 @@ def main_menu(db):
         elif opt == 4:
             DeleteDisplay(db)
         elif opt == 5:
-            UpdateDisplay(db)
-        elif opt == 6:
-            print('logging out of mysql')
+            print('Logging out of mysql')
             time.sleep(0.28)
             if db.close():
-                print('database closed successfully')
+                print('Database closed successfully')
             else:
-                print('error closing db')
+                print('Error closing db')
             break
 
 
@@ -287,7 +287,8 @@ if __name__ == '__main__':
     prompt users to input database host,
     database name, username and password.
     """
-    try:
+
+    try: #Pulls from a credentials file for testing purposes.
         with open('./credentials', 'r') as f:
             deets = json.load(f)
         print(f'using found credentials: {deets}')
@@ -295,10 +296,19 @@ if __name__ == '__main__':
         if db.is_connected():
             print('>>>>>>>>>>>>using fake login<<<<<<<<<<<<')
             time.sleep(1.0)
-    except:
+    except: #If that file does not exist, then prompt the user for the information.
         db = login_dialog()
         if db:
             if db.is_connected():
+
+                #Once database is connected. If the process is killed, perform a clean exit
+                #Adapted from https://stackoverflow.com/questions/1112343/how-do-i-capture-sigint-in-python
+                def cleanExit(sig, frame):
+                    print('Exiting...')
+                    db.close()
+                    sys.exit(0)
+                signal.signal(signal.SIGINT, cleanExit)
+
                 print('** Database has connected correctly')
                 time.sleep(.60)
             else:
@@ -312,6 +322,5 @@ if __name__ == '__main__':
     options to conduct the Main functions (see below) and to logout. One example of an
     interface can be a list as follows
     """
+
     main_menu(db)
-
-
