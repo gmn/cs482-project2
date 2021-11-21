@@ -57,13 +57,14 @@ def ShowModels(db):
 def DisplayDigitalDisplays(db):
     """
         (1) Display all the digital displays. For each display, if a user clicks the model no, the detailed model information should be displayed.
+        (5) When displaying all digital displays’ information, users can choose one digital display and update it. Show the information of all digital displays after updating.
     """
     res = db.query("SELECT * FROM DigitalDisplay;")
     header = ['Serial Number', 'Scheduler System', 'Model No.']
     fancy_print(header, res)
 
     print()
-    opt = SubMenu(['Lookup Model'], 'If you would like to look up model information. Please use the options below.', quit=False)
+    opt = SubMenu(['Lookup Model', 'Update Display'], 'If you would like to look up model information, or update display information. Please use the options below.', quit=False)
     if opt is None:
         return
     if opt == 'Lookup Model':
@@ -74,6 +75,26 @@ def DisplayDigitalDisplays(db):
             res2 = db.query(f'SELECT * FROM Model WHERE modelNo="{modelNo}";')
             header = ['Model No.', 'Width', 'Height', 'Weight', 'Depth', 'Screen Size']
             fancy_print(header, res2)
+    if opt == 'Update Display':
+        while True:
+            updateDisp = SubMenu([i[0] for i in res], 'Select Display to Update', quit=False)
+            for item in res:
+                if item[0] == updateDisp:
+                    newSerialNo = item[0]
+                    newScheduler = item[1]
+            if not updateDisp:
+                break
+            serialNo = Question('Enter New Serial Number (Leave Black for No Update)> ')
+            if serialNo != '':
+                newSerialNo = serialNo
+            scheduler = Question('Enter New Scheduler System (Leave Black for No Update)> ')
+            if scheduler != '':
+                newScheduler = scheduler
+            db.update(f'UPDATE DigitalDisplay SET serialNo="{newSerialNo}", schedulerSystem="{newScheduler}" WHERE serialNo="{updateDisp}"')
+            res2 = db.query("SELECT * FROM DigitalDisplay;")
+            header = ['Serial Number', 'Scheduler System', 'Model No.']
+            fancy_print(header, res2)
+        
     time.sleep(0.5)
 
 
@@ -185,9 +206,9 @@ def DeleteDisplay(db):
 
 def UpdateDisplay(disp):
     """
-        (5) When displaying all digital displays’ information, users can choose one digital display and update it. Show the information of all digital displays after updating.
+        
     """
-    print('in UpdateDisplay')
+    
     time.sleep(0.5)
 
 

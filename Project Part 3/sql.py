@@ -27,6 +27,10 @@ class sqlWrapper:
         self.cursor.execute(qstring)
         self.db.commit()
         return [x[0] if len(x) == 1 else x for x in self.cursor]
+    
+    def update(self, qstring):
+        self.cursor.execute(qstring)
+        self.db.commit()
 
 
     def close(self):
